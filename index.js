@@ -2719,6 +2719,7 @@
 
 var PoRunner = {
     sendScoreToServer: function(highScore) {
+        if(highScore > Number(document.getElementById("highScore").innerHTML)) {
         swal({
             text: 'You have hit a new record! Tell the world who you are!',
             content: {
@@ -2728,17 +2729,18 @@ var PoRunner = {
                 }
             },
             button: {
-              text: "Send my PO record!",
-              closeModal: true,
+                text: "Send my PO record!",
+                closeModal: true,
             },
-          })
-          .then(leader => {
+            })
+            .then(leader => {
             leader = leader == "" ? "An anonymous PO": leader;
             return $.post(`/poTheGame/highScore`, {
                 highScore: highScore,
                 leader: leader
             }).then(() => loadLeaderBoard() );              
-          });
+            });
+        }
     }
 }
 
