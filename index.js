@@ -2739,7 +2739,7 @@ var PoRunner = {
                 var localLeader = localStorage.getItem("leader") == null ? "An anonymous PO": localStorage.getItem("leader");
                 leader = leader == "" ? localLeader: leader;
                 localStorage.setItem("leader", leader);
-                return $.post(`/poTheGame/highScore`, {
+                return $.post(`/poTheGame2/highScore`, {
                     highScore: highScore,
                     leader: leader
                 }).then(() => {
@@ -2752,7 +2752,7 @@ var PoRunner = {
 }
 
 function loadLeaderBoard() {
-    $.get("/poTheGame/poHighScore").then((data) => {
+    $.get("/poTheGame2/poHighScore").then((data) => {
         document.getElementById("highScore").innerHTML = data.highScore;
         document.getElementById("leader").innerHTML = data.leader;
     });
