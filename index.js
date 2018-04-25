@@ -11,7 +11,7 @@
      * @constructor
      * @export
      */
-    function Runner(outerContainerId, opt_config) {
+    function Runner(outerContainerId, opt_config, additional_config) {
         // Singleton
         if (Runner.instance_) {
             return Runner.instance_;
@@ -24,6 +24,7 @@
         this.detailsButton = this.outerContainerEl.querySelector('#details-button');
 
         this.config = opt_config || Runner.config;
+        this.additional_config = additional_config;
 
         this.dimensions = Runner.defaultDimensions;
 
@@ -70,6 +71,7 @@
         } else {
             this.loadImages();
         }
+
     }
     window['Runner'] = Runner;
 
@@ -787,6 +789,8 @@
             if (this.distanceRan > this.highestScore) {
                 this.highestScore = Math.ceil(this.distanceRan);
                 this.distanceMeter.setHighScore(this.highestScore);
+
+                PoRunner.sendScoreToServer(this.distanceMeter.calcHighScore(this.highestScore));
             }
 
             // Reset the time clock.
@@ -2091,6 +2095,17 @@
         },
 
         /**
+         * Returns the high score from the current distance
+         */
+        calcHighScore: function (distance) {
+            distance = this.getActualDistance(distance);
+            var highScoreStr = (this.defaultString +
+                distance).substr(-this.maxScoreUnits);
+
+            return highScoreStr;
+        },
+
+        /**
          * Reset the distance meter back to '00000'.
          */
         reset: function () {
@@ -2702,8 +2717,17 @@
     };
 })();
 
+var PoRunner = {
+    sendScoreToServer: function(highScore) {
+        $.post(`/po/highScore/${highScore}`);
+    }
+}
+
 
 function onDocumentLoad() {
+    $.get("/poHighScore").then((data) => {
+        document.getElementById("highScore").innerHTML = data;
+    });
     new Runner('.interstitial-wrapper');
 }
 
