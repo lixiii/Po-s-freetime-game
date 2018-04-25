@@ -2719,15 +2719,38 @@
 
 var PoRunner = {
     sendScoreToServer: function(highScore) {
-        $.post(`/po/highScore/${highScore}`);
+        swal({
+            text: 'You have hit a new record! Tell the world who you are!',
+            content: {
+                element: "input",
+                attributes: {
+                    value: 'An Anonymous PO'
+                }
+            },
+            button: {
+              text: "Send my PO record!",
+              closeModal: true,
+            },
+          })
+          .then(leader => {
+            leader = leader == "" ? "An anonymous PO": leader;
+            return $.post(`/poTheGame/highScore`, {
+                highScore: highScore,
+                leader: leader
+            }).then(() => loadLeaderBoard() );              
+          });
     }
 }
 
+function loadLeaderBoard() {
+    $.get("/poTheGame/poHighScore").then((data) => {
+        document.getElementById("highScore").innerHTML = data.highScore;
+        document.getElementById("leader").innerHTML = data.leader;
+    });
+}
 
 function onDocumentLoad() {
-    $.get("/poHighScore").then((data) => {
-        document.getElementById("highScore").innerHTML = data;
-    });
+    loadLeaderBoard();
     new Runner('.interstitial-wrapper');
 }
 
