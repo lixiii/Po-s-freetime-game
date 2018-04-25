@@ -2720,26 +2720,33 @@
 var PoRunner = {
     sendScoreToServer: function(highScore) {
         if(highScore > Number(document.getElementById("highScore").innerHTML)) {
-        swal({
-            text: 'You have hit a new record! Tell the world who you are!',
-            content: {
-                element: "input",
-                attributes: {
-                    value: 'An Anonymous PO'
-                }
-            },
-            button: {
-                text: "Send my PO record!",
-                closeModal: true,
-            },
-            })
-            .then(leader => {
-            leader = leader == "" ? "An anonymous PO": leader;
-            return $.post(`/poTheGame/highScore`, {
-                highScore: highScore,
-                leader: leader
-            }).then(() => loadLeaderBoard() );              
-            });
+            // stop listening
+            window.pothegame.stopListening();
+            swal({
+                text: 'You have hit a new record! Tell the world who you are!',
+                content: {
+                    element: "input",
+                    attributes: {
+                        value: localStorage.getItem("leader") == null ? "An anonymous PO": localStorage.getItem("leader")
+                    }
+                },
+                button: {
+                    text: "Send my PO record!",
+                    closeModal: true,
+                },
+                })
+                .then(leader => {
+                var localLeader = localStorage.getItem("leader") == null ? "An anonymous PO": localStorage.getItem("leader");
+                leader = leader == "" ? localLeader: leader;
+                localStorage.setItem("leader", leader);
+                return $.post(`/poTheGame/highScore`, {
+                    highScore: highScore,
+                    leader: leader
+                }).then(() => {
+                    loadLeaderBoard();
+                    window.pothegame.startListening();
+                });              
+                });
         }
     }
 }
@@ -2753,7 +2760,7 @@ function loadLeaderBoard() {
 
 function onDocumentLoad() {
     loadLeaderBoard();
-    new Runner('.interstitial-wrapper');
+    window.pothegame = new Runner('.interstitial-wrapper');
 }
 
 document.addEventListener('DOMContentLoaded', onDocumentLoad);
